@@ -1,332 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f8ff;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .gradient-square {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, #1e90ff, #00bfff);
-            position: absolute;
-            opacity: 0.15;
-            z-index: -1;
-        }
-        
-        .gradient-circle {
-            width: 250px;
-            height: 250px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #87cefa, #1e90ff);
-            position: absolute;
-            opacity: 0.15;
-            z-index: -1;
-        }
-        
-        .weather-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            padding: 25px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .weather-icon {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto;
-        }
-        
-        .temperature {
-            font-size: 3.5rem;
-            font-weight: 300;
-        }
-        
-        .weather-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .detail-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .search-container {
-            margin-bottom: 30px;
-            width: 100%;
-            max-width: 500px;
-        }
-        
-        @media (max-width: 600px) {
-            .temperature {
-                font-size: 2.5rem;
-            }
-            
-            .weather-details {
-                grid-template-columns: 1fr;
-            }
-            
-            .gradient-circle, .gradient-square {
-                width: 150px;
-                height: 150px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Offline Weather App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to top right, #7dd3fc, #1e3a8a);
+      color: #fff;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .weather-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 350px;
+    }
+
+    input {
+      padding: 10px 15px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      width: 70%;
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .temp {
+      font-size: 3rem;
+      margin: 10px 0;
+    }
+
+    .desc {
+      text-transform: capitalize;
+      margin-bottom: 20px;
+    }
+
+    .error {
+      margin-top: 20px;
+      color: #ffb3b3;
+    }
+  </style>
 </head>
 <body>
-    <!-- Gradient decorative elements -->
-    <div class="gradient-square" style="top: 50px; left: 50px;"></div>
-    <div class="gradient-circle" style="top: 200px; right: 100px;"></div>
-    <div class="gradient-square" style="bottom: 100px; right: 50px;"></div>
-    
-    <div class="search-container">
-        <h1 class="text-3xl font-bold text-center mb-6 text-blue-900">Weather Dashboard</h1>
-        <div class="flex">
-            <input 
-                type="text" 
-                id="locationInput" 
-                placeholder="Enter city name" 
-                class="flex-grow px-4 py-2 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-            <button 
-                id="searchBtn" 
-                class="px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition-colors duration-300"
-            >
-                Search
-            </button>
-        </div>
-        <div class="flex justify-center mt-4">
-            <button 
-                id="useLocationBtn" 
-                class="text-blue-600 hover:text-blue-800 text-sm transition-colors duration-300 flex items-center gap-1"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Use My Location
-            </button>
-        </div>
-    </div>
-    
-    <div class="weather-card" id="weatherContainer" style="display: none;">
-        <div class="text-center">
-            <h2 class="text-2xl font-semibold text-blue-900" id="locationName">Loading...</h2>
-            <div class="weather-icon">
-                <img id="weatherIcon" src="" alt="Weather condition icon" class="w-full h-auto" src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6770675c-d3e1-416e-b648-19cfeafe672c.png">
-            </div>
-            <div class="temperature" id="temperature">--°</div>
-            <div class="text-xl text-blue-800 mb-2" id="weatherDescription">--</div>
-            <div class="weather-details">
-                <div class="detail-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                    </svg>
-                    <span id="humidity">--%</span>
-                </div>
-                <div class="detail-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span id="windSpeed">-- km/h</span>
-                </div>
-                <div class="detail-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span id="sunrise">--:--</span>
-                </div>
-                <div class="detail-item">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-                    </svg>
-                    <span id="pressure">-- hPa</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="weather-card" id="errorContainer" style="display: none;">
-        <div class="text-center text-red-600" id="errorMessage">
-            Unable to fetch weather data. Please try again later.
-        </div>
-    </div>
-    
-    <script>
-        // OpenWeatherMap API configuration
-        const API_KEY = "ea154ba18db46a9e9385db8c62e17ab"; // Replace with your own API key
-        const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
 
-       const PROXY_URL = ''; // or remove it entirely from your fetch URLs
+  <div class="weather-card">
+    <h2>Offline Weather App</h2>
+    <div>
+      <input type="text" id="cityInput" placeholder="Enter city..." />
+      <button onclick="searchWeather()">Search</button>
+    </div>
+    <div id="result" style="margin-top: 20px;">
+      <!-- Weather info will appear here -->
+    </div>
+    <div class="error" id="errorMsg"></div>
+  </div>
 
-        
-        // CORS proxy URL to avoid CORS issues (optional)
-        const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
-        
-        // DOM elements
-        const locationInput = document.getElementById('locationInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const useLocationBtn = document.getElementById('useLocationBtn');
-        const weatherContainer = document.getElementById('weatherContainer');
-        const errorContainer = document.getElementById('errorContainer');
-        
-        // Weather display elements
-        const locationNameEl = document.getElementById('locationName');
-        const temperatureEl = document.getElementById('temperature');
-        const weatherDescriptionEl = document.getElementById('weatherDescription');
-        const weatherIconEl = document.getElementById('weatherIcon');
-        const humidityEl = document.getElementById('humidity');
-        const windSpeedEl = document.getElementById('windSpeed');
-        const sunriseEl = document.getElementById('sunrise');
-        const pressureEl = document.getElementById('pressure');
-        
-        // Event listeners
-        searchBtn.addEventListener('click', () => {
-            const location = locationInput.value.trim();
-            if (location) {
-                fetchWeatherByLocation(location);
-            } else {
-                showError('Please enter a location');
-            }
-        });
-        
-        locationInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const location = locationInput.value.trim();
-                if (location) {
-                    fetchWeatherByLocation(location);
-                }
-            }
-        });
-        
-        useLocationBtn.addEventListener('click', () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        fetchWeatherByCoords(latitude, longitude);
-                    },
-                    (error) => {
-                        showError('Unable to access your location. Please enable location permissions.');
-                    }
-                );
-            } else {
-                showError('Geolocation is not supported by your browser');
-            }
-        });
-        
-        // Fetch weather by location name
-        async function fetchWeatherByLocation(location) {
-            try {
-                weatherContainer.style.display = 'none';
-                errorContainer.style.display = 'none';
-                
-                const response = await fetch(`${PROXY_URL}${API_URL}?q=${encodeURIComponent(location)}&appid=${API_KEY}&units=metric`);
-                
-                if (!response.ok) {
-                    throw new Error(response.status === 404 ? 'City not found' : 'Weather data unavailable');
-                }
-                
-                const data = await response.json();
-                displayWeather(data);
-                
-            } catch (error) {
-                showError(error.message || 'Failed to fetch weather data');
-                console.error('Fetch error:', error);
-            }
-        }
-        
-        // Fetch weather by coordinates
-        async function fetchWeatherByCoords(lat, lon) {
-            try {
-                weatherContainer.style.display = 'none';
-                errorContainer.style.display = 'none';
-                
-                const response = await fetch(`${PROXY_URL}${API_URL}?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
-                
-                if (!response.ok) {
-                    throw new Error('Weather data unavailable for your location');
-                }
-                
-                const data = await response.json();
-                displayWeather(data);
-                
-            } catch (error) {
-                showError(error.message || 'Failed to fetch weather data');
-                console.error('Fetch error:', error);
-            }
-        }
-        
-        // Display weather data
-        function displayWeather(data) {
-            // Set basic information
-            locationNameEl.textContent = `${data.name}, ${data.sys.country}`;
-            temperatureEl.textContent = `${Math.round(data.main.temp)}°`;
-            weatherDescriptionEl.textContent = data.weather[0].description;
-            
-            // Set weather icon
-            const iconCode = data.weather[0].icon;
-            weatherIconEl.src = `${ICON_URL}${iconCode}@2x.png`;
-            weatherIconEl.alt = `Weather icon for ${data.weather[0].description}`;
-            
-            // Set detailed information
-            humidityEl.textContent = `${data.main.humidity}%`;
-            windSpeedEl.textContent = `${Math.round(data.wind.speed * 3.6)} km/h`;
-            
-            // Convert sunrise timestamp to readable time
-            const sunriseDate = new Date(data.sys.sunrise * 1000);
-            sunriseEl.textContent = sunriseDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            pressureEl.textContent = `${data.main.pressure} hPa`;
-            
-            // Show weather container
-            weatherContainer.style.display = 'block';
-            errorContainer.style.display = 'none';
-        }
-        
-        // Display error message
-        function showError(message) {
-            errorContainer.style.display = 'block';
-            weatherContainer.style.display = 'none';
-            document.getElementById('errorMessage').textContent = message;
-        }
-        
-        // Load weather for user's location on first visit if they allow
-        document.addEventListener('DOMContentLoaded', () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        fetchWeatherByCoords(latitude, longitude);
-                    },
-                    () => {
-                        // Silently fail - user can manually input location
-                    }
-                );
-            }
-        });
-    </script>
+  <script>
+    const weatherData = {
+      "mumbai": { temp: 28 ,Precipitation: "55%" ,Humidity: "84%" ,Wind: "29 km/h"},
+      "delhi": { temp: 37, desc: "hot and dry", humidity: "45%", wind: "10 km/h" },
+      "new york": { temp: 22, desc: "cloudy", humidity: "65%", wind: "12 km/h" },
+      "london": { temp: 18, desc: "rainy", humidity: "88%", wind: "9 km/h" },
+      "tokyo": { temp: 26, desc: "sunny", humidity: "70%", wind: "20 km/h" },
+    };
+
+    function searchWeather() {
+      const city = document.getElementById("cityInput").value.toLowerCase().trim();
+      const resultDiv = document.getElementById("result");
+      const errorDiv = document.getElementById("errorMsg");
+
+      if (weatherData[city]) {
+        const data = weatherData[city];
+        resultDiv.innerHTML = `
+          <div class="temp">${data.temp}°C</div>
+          <div class="desc">${data.desc}</div>
+          <div>Humidity: ${data.humidity}</div>
+          <div>Wind: ${data.wind}</div>
+        `;
+        errorDiv.textContent = "";
+      } else {
+        resultDiv.innerHTML = "";
+        errorDiv.textContent = "City not found. Try again.";
+      }
+    }
+  </script>
+
 </body>
 </html>
-
